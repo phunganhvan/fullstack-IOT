@@ -1,0 +1,121 @@
+.profile-root {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #0f1123;
+  color: #fff;
+}
+
+.profile-card-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 24px;
+}
+
+.profile-card {
+  background: #141629;
+  border-radius: 16px;
+  border: 1px solid #1e2140;
+  padding: 32px 36px;
+  display: flex;
+  gap: 36px;
+  width: 100%;
+  max-width: 700px;
+}
+
+/* Avatar column */
+.profile-avatar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  background: #2d3050 !important;
+  font-size: 48px !important;
+  width: 110px !important;
+  height: 110px !important;
+  line-height: 110px !important;
+}
+
+.profile-role-badge {
+  background: #2d3050;
+  color: #a5b4fc;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+/* Fields */
+.profile-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pf-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.pf-input {
+  background: #1a1d35;
+  border: 1px solid #2d3050;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pf-icon { color: #6366f1; font-size: 15px; }
+.pf-value { color: #d1d5db; font-size: 14px; }
+
+/* Links grid */
+.pf-links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pf-link-card {
+  background: #1a1d35;
+  border: 1px solid #2d3050;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d1d5db;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.pf-link-card:hover {
+  background: #2d3050;
+  border-color: #6366f1;
+  color: #fff;
+}
+.pf-link-icon { color: #6366f1; font-size: 16px; }
+
+/* reuse page-header styles */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+  padding: 16px 20px 0;
+}
+.page-title   { font-size: 22px; font-weight: 700; color: #fff; margin: 0; }
+.page-subtitle{ font-size: 12px; color: #6b7280; margin: 2px 0 0; }
+.page-time    { text-align: right; font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
