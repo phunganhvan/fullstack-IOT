@@ -12,10 +12,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard"      element={<Dashboard />} />
-          <Route path="data-sensor"    element={<DataSensor />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="data-sensor" element={<DataSensor />} />
           <Route path="action-history" element={<ActionHistory />} />
-          <Route path="profile"        element={<Profile />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -149,28 +149,28 @@ let sensorData = sensorPackets.flatMap(buildLegacyRows);
 
 // ── Action / device history ───────────────────────────────────────────────────
 let actionData = [
-  { id: '68fe49ac7f6b6ea48d797f90', sensor_name: 'Living Room Light', value: 'Turn ON',  timestamp: '2023-10-25 10:45:12', status: 'ON' },
-  { id: '68fe49ac7f6b6ea48d797f91', sensor_name: 'Air Conditioner',   value: 'Turn ON',  timestamp: '2023-10-25 10:42:05', status: 'ON' },
-  { id: '68fe49ac7f6b6ea48d797f92', sensor_name: 'Fan',               value: 'Turn OFF', timestamp: '2023-10-25 10:38:30', status: 'OFF' },
-  { id: '68fe49ac7f6b6ea48d797f903',sensor_name: 'Bedroom Light',     value: 'Turn ON',  timestamp: '2023-10-25 10:35:15', status: 'ON' },
-  { id: '68fe49ac7f6b6ea48d797f94', sensor_name: 'Living Room Light', value: 'Turn ON',  timestamp: '2023-10-25 10:30:00', status: 'Loading' },
-  { id: '68fe49ac7f6b6ea48d797f95', sensor_name: 'Bedroom Light',     value: 'Turn OFF', timestamp: '2023-10-25 06:00:00', status: 'OFF' },
-  { id: '68fe49ac7f6b6ea48d797f96', sensor_name: 'Air Conditioner',   value: 'Turn ON',  timestamp: '2023-10-24 22:15:00', status: 'ON' },
+  { id: '68fe49ac7f6b6ea48d797f90', sensor_name: 'Living Room Light', value: 'Turn ON', timestamp: '2023-10-25 10:45:12', status: 'ON' },
+  { id: '68fe49ac7f6b6ea48d797f91', sensor_name: 'Air Conditioner', value: 'Turn ON', timestamp: '2023-10-25 10:42:05', status: 'ON' },
+  { id: '68fe49ac7f6b6ea48d797f92', sensor_name: 'Fan', value: 'Turn OFF', timestamp: '2023-10-25 10:38:30', status: 'OFF' },
+  { id: '68fe49ac7f6b6ea48d797f903', sensor_name: 'Bedroom Light', value: 'Turn ON', timestamp: '2023-10-25 10:35:15', status: 'ON' },
+  { id: '68fe49ac7f6b6ea48d797f94', sensor_name: 'Living Room Light', value: 'Turn ON', timestamp: '2023-10-25 10:30:00', status: 'Loading' },
+  { id: '68fe49ac7f6b6ea48d797f95', sensor_name: 'Bedroom Light', value: 'Turn OFF', timestamp: '2023-10-25 06:00:00', status: 'OFF' },
+  { id: '68fe49ac7f6b6ea48d797f96', sensor_name: 'Air Conditioner', value: 'Turn ON', timestamp: '2023-10-24 22:15:00', status: 'ON' },
 ];
 
 // ── Device states ─────────────────────────────────────────────────────────────
 let deviceStates = {
   'Living Room Light': true,
-  'Kitchen Light':     true,
-  'Ceiling Fan':       true,
-  'Air Conditioner':   true,
+  'Kitchen Light': true,
+  'Ceiling Fan': true,
+  'Air Conditioner': true,
 };
 
 // ── Latest sensor values (for dashboard cards) ────────────────────────────────
 let latestSensorValues = {
-  temperature:  { value: 27,   trend: '+2%',  status: 'Normal' },
-  humidity:     { value: 55,   trend: '-1%',  status: 'Normal' },
-  lightIntensity:{ value: 430, trend: '+5%',  status: 'Normal' },
+  temperature: { value: 27, trend: '+2%', status: 'Normal' },
+  humidity: { value: 55, trend: '-1%', status: 'Normal' },
+  lightIntensity: { value: 430, trend: '+5%', status: 'Normal' },
 };
 
 if (sensorPackets.length > 0) {
@@ -185,8 +185,8 @@ function generateChartData() {
     hours.push({
       time: hStr,
       temperature: Math.round(15 + Math.sin((h / 24) * Math.PI) * 20 + Math.random() * 3),
-      humidity:    Math.round(35 + Math.sin((h / 24) * Math.PI * 1.3) * 25 + Math.random() * 3),
-      light:       Math.round(200 + Math.sin((h / 24) * Math.PI * 0.9) * 600 + Math.random() * 30),
+      humidity: Math.round(35 + Math.sin((h / 24) * Math.PI * 1.3) * 25 + Math.random() * 3),
+      light: Math.round(200 + Math.sin((h / 24) * Math.PI * 0.9) * 600 + Math.random() * 30),
     });
   }
   return hours;

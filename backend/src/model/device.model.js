@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const { DEVICE_IDS } = require('../constants/devices');
-
 const DEVICE_STATUSES = ['on', 'off', 'loading'];
+const DEVICE_TYPES = ['bulb', 'fan', 'ac'];
 
 const deviceSchema = new mongoose.Schema(
   {
@@ -10,9 +9,36 @@ const deviceSchema = new mongoose.Schema(
       required: true,
       unique: true,
       sparse: true,
-      enum: DEVICE_IDS,
       lowercase: true,
       trim: true,
+    },
+    label: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    dashboardType: {
+      type: String,
+      enum: DEVICE_TYPES,
+      default: 'bulb',
+      lowercase: true,
+      trim: true,
+    },
+    dashboardIcon: {
+      type: String,
+      enum: DEVICE_TYPES,
+      default: 'bulb',
+      lowercase: true,
+      trim: true,
+    },
+    actionIcon: {
+      type: String,
+      default: '🔧',
+      trim: true,
+    },
+    isSimulated: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,

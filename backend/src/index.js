@@ -7,26 +7,34 @@ const Device = require('./model/device.model');
 const ActionHistory = require('./model/actionHistory.model');
 const Sensor = require('./model/sensor.model');
 const DataSensor = require('./model/dataSensor.model');
-const { DEVICE_IDS, normalizeDeviceId } = require('./constants/devices');
+const { DEVICE_IDS, DEVICE_LIST, normalizeDeviceId } = require('./constants/devices');
 const { SENSOR_LIST, normalizeSensorKey } = require('./constants/sensors');
 
-const sensorRoutes = require('./routes/sensorRoutes');
-const deviceRoutes = require('./routes/deviceRoutes');
-const actionRoutes = require('./routes/actionRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
+const apiRoutes = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (!isProduction) {
+  app.set('etag', false);
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+if (!isProduction) {
+  app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+  });
+}
+
 // Routes
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/sensors', sensorRoutes);
-app.use('/api/devices', deviceRoutes);
-app.use('/api/actions', actionRoutes);
+app.use('/api', apiRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -146,14 +154,20 @@ async function migrateLegacyDevicesToNameField() {
 async function seedDefaultDevices() {
   if (!mongoService.isMongoConnected()) return;
 
-  const operations = DEVICE_IDS.map((deviceName) => ({
+  const operations = DEVICE_LIST.map((device) => ({
     updateOne: {
-      filter: { name: deviceName },
+      filter: { name: device.id },
       update: {
         $setOnInsert: {
-          name: deviceName,
+          name: device.id,
           status: 'off',
-          updatedAt: new Date(),
+          isSimulated: false,
+        },
+        $set: {
+          label: device.label,
+          dashboardType: device.dashboardType,
+          dashboardIcon: device.dashboardIcon,
+          actionIcon: device.actionIcon,
         },
       },
       upsert: true,

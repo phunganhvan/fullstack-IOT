@@ -1,0 +1,645 @@
+{
+  "info": {
+    "_postman_id": "iot-fullstack-collection",
+    "name": "IoT Fullstack API",
+    "description": "Complete API documentation for IoT Fullstack Dashboard\n\n**Base URL:** {{baseUrl}}/api\n(Default: http://localhost:5000/api)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check API health status and connections (MQTT, MongoDB)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"ok\",\n  \"mqtt\": \"connected\",\n  \"mongo\": \"connected\",\n  \"timestamp\": \"2026-03-22T10:30:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "description": "Fetch complete dashboard data including sensors, devices, and charts"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "dashboard"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"sensorCards\": [\n    {\n      \"key\": \"temp\",\n      \"label\": \"Temperature\",\n      \"unit\": \"°C\",\n      \"value\": 24.5,\n      \"isSimulated\": true,\n      \"status\": \"active\"\n    }\n  ],\n  \"deviceList\": [\n    {\n      \"_id\": \"...\",\n      \"name\": \"ac\",\n      \"label\": \"Air Conditioner\",\n      \"status\": \"on\",\n      \"isSimulated\": true,\n      \"loading\": false\n    }\n  ],\n  \"chartSeries\": [\n    {\n      \"key\": \"temp\",\n      \"label\": \"Temperature\",\n      \"data\": [\n        { \"time\": \"10:00\", \"value\": 22 },\n        { \"time\": \"10:05\", \"value\": 23 }\n      ]\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sensors",
+      "item": [
+        {
+          "name": "Get All Sensors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sensors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sensors"
+              ]
+            },
+            "description": "List all sensors with latest data"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sensors",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sensors"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"_id\": \"...\",\n    \"name\": \"temperature\",\n    \"unit\": \"°C\",\n    \"isActive\": true,\n    \"isSimulated\": true,\n    \"latestValue\": 24.5,\n    \"lastUpdated\": \"2026-03-22T10:30:00.000Z\"\n  },\n  {\n    \"_id\": \"...\",\n    \"name\": \"humidity\",\n    \"unit\": \"%\",\n    \"isActive\": true,\n    \"isSimulated\": true,\n    \"latestValue\": 65,\n    \"lastUpdated\": \"2026-03-22T10:30:00.000Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Latest Sensor Packet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sensors/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sensors",
+                "latest"
+              ]
+            },
+            "description": "Get the latest sensor data packet from all sensors"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sensors/latest",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sensors",
+                    "latest"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"temp\": 24.5,\n  \"humidity\": 65,\n  \"co2\": 420,\n  \"timestamp\": \"2026-03-22T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Sensor Packets (History)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sensors/packets?limit=100&skip=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sensors",
+                "packets"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Number of records to fetch"
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Number of records to skip (for pagination)"
+                }
+              ]
+            },
+            "description": "Get historical sensor data packets"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sensors/packets?limit=100&skip=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sensors",
+                    "packets"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "100"
+                    },
+                    {
+                      "key": "skip",
+                      "value": "0"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total\": 1000,\n  \"skip\": 0,\n  \"limit\": 100,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"temp\": 24.5,\n      \"humidity\": 65,\n      \"co2\": 420,\n      \"timestamp\": \"2026-03-22T10:30:00.000Z\",\n      \"createdAt\": \"2026-03-22T10:30:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Sensor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"co2\",\n  \"unit\": \"ppm\",\n  \"isSimulated\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sensors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sensors"
+              ]
+            },
+            "description": "Add a new sensor (simulated or real)"
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"co2\",\n  \"unit\": \"ppm\",\n  \"isSimulated\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/sensors",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sensors"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"_id\": \"...\",\n  \"name\": \"co2\",\n  \"unit\": \"ppm\",\n  \"isActive\": true,\n  \"isSimulated\": true,\n  \"createdAt\": \"2026-03-22T10:30:00.000Z\",\n  \"updatedAt\": \"2026-03-22T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Sensor",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sensors/temp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sensors",
+                "temp"
+              ],
+              "variable": [
+                {
+                  "key": "sensorKey",
+                  "value": "temp",
+                  "description": "Sensor key/name to delete (must be simulated)"
+                }
+              ]
+            },
+            "description": "Delete a sensor (only simulated sensors can be deleted)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sensors/temp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sensors",
+                    "temp"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Sensor deleted successfully\",\n  \"deletedSensor\": \"temp\",\n  \"deletedReadings\": 245\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "Get All Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "List all devices with their current status"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"_id\": \"...\",\n    \"name\": \"ac\",\n    \"label\": \"Air Conditioner\",\n    \"status\": \"on\",\n    \"isSimulated\": true,\n    \"loading\": false,\n    \"createdAt\": \"2026-03-22T10:30:00.000Z\"\n  },\n  {\n    \"_id\": \"...\",\n    \"name\": \"light\",\n    \"label\": \"Light\",\n    \"status\": \"off\",\n    \"isSimulated\": true,\n    \"loading\": false,\n    \"createdAt\": \"2026-03-22T10:30:00.000Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Add Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"fan\",\n  \"label\": \"Fan\",\n  \"isSimulated\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "Add a new device (simulated or real)"
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"fan\",\n  \"label\": \"Fan\",\n  \"isSimulated\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"_id\": \"...\",\n  \"name\": \"fan\",\n  \"label\": \"Fan\",\n  \"status\": \"off\",\n  \"isSimulated\": true,\n  \"loading\": false,\n  \"createdAt\": \"2026-03-22T10:30:00.000Z\",\n  \"updatedAt\": \"2026-03-22T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Control Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceName\": \"ac\",\n  \"action\": \"on\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/control",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "control"
+              ]
+            },
+            "description": "Control a device (turn on/off or perform action)\n\nParams:\n- `deviceName`: Device identifier (e.g., 'ac', 'light', 'fan')\n- `action`: Action to perform ('on', 'off', or custom actions)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"deviceName\": \"ac\",\n  \"action\": \"on\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices/control",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "control"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Device control command sent\",\n  \"device\": \"ac\",\n  \"action\": \"on\",\n  \"status\": \"on\",\n  \"loading\": false,\n  \"timestamp\": \"2026-03-22T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Device",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices/fan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "fan"
+              ],
+              "variable": [
+                {
+                  "key": "deviceId",
+                  "value": "fan",
+                  "description": "Device name/ID to delete (must be simulated)"
+                }
+              ]
+            },
+            "description": "Soft-delete a device (only simulated devices can be deleted)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices/fan",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "fan"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Device deleted successfully\",\n  \"device\": {\n    \"_id\": \"...\",\n    \"name\": \"fan\",\n    \"status\": \"off\",\n    \"isDeleted\": true,\n    \"deletedAt\": \"2026-03-22T10:30:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Actions",
+      "item": [
+        {
+          "name": "Get All Actions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actions?limit=50&skip=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actions"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of records to fetch"
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Number of records to skip (for pagination)"
+                }
+              ]
+            },
+            "description": "Get action history (device control log)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/actions?limit=50&skip=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "actions"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "skip",
+                      "value": "0"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total\": 125,\n  \"skip\": 0,\n  \"limit\": 50,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"device\": \"ac\",\n      \"action\": \"on\",\n      \"status\": \"success\",\n      \"timestamp\": \"2026-03-22T10:30:00.000Z\",\n      \"createdAt\": \"2026-03-22T10:30:00.000Z\"\n    },\n    {\n      \"_id\": \"...\",\n      \"device\": \"light\",\n      \"action\": \"off\",\n      \"status\": \"success\",\n      \"timestamp\": \"2026-03-22T10:29:00.000Z\",\n      \"createdAt\": \"2026-03-22T10:29:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    }
+  ]
+}

@@ -9,17 +9,17 @@ import {
 import './Profile.scss';
 
 const fields = [
-  { icon: <UserOutlined />,     label: 'HỌ VÀ TÊN',         value: 'Phùng Anh Văn' },
+  { icon: <UserOutlined />, label: 'HỌ VÀ TÊN', value: 'Phùng Anh Văn' },
   { icon: <CalendarOutlined />, label: 'NGÀY THÁNG NĂM SINH', value: '13/12/2004' },
-  { icon: <IdcardOutlined />,   label: 'MÃ SINH VIÊN',       value: 'B22DCPT302' },
-  { icon: <TeamOutlined />,     label: 'CPA TÍCH LŨY',       value: '3.26' },
+  { icon: <IdcardOutlined />, label: 'MÃ SINH VIÊN', value: 'B22DCPT302' },
+  { icon: <TeamOutlined />, label: 'CPA TÍCH LŨY', value: '3.26' },
 ];
 
 const links = [
-  { icon: <FilePdfOutlined />, label: 'Báo cáo PDF',    href: '#' },
-  { icon: <ApiOutlined />,     label: 'API Docs',        href: 'http://localhost:5000/api/health' },
-  { icon: <GithubOutlined />,  label: 'GitHub',          href: '#' },
-  { icon: <BuildOutlined />,   label: 'Figma / Draw.io', href: '#' },
+  { icon: <FilePdfOutlined />, label: 'Báo cáo PDF', href: 'https://drive.google.com/file/d/1z4Vysm36BJBDvGIrFBuQBrPdYmUlkdfC/view?usp=sharing' },
+  { icon: <ApiOutlined />, label: 'API Docs', href: 'https://fullstackoverflow-1444.postman.co/workspace/Backend_Nodejs~12f2ece7-204a-4989-97e6-bd2bed30f0c1/collection/43778575-b0eb717c-424c-4a35-a030-a1d54fdd6f8f?action=share&source=copy-link&creator=43778575' },
+  { icon: <GithubOutlined />, label: 'GitHub', href: 'https://github.com/phunganhvan/fullstack-IOT/tree/main' },
+  { icon: <BuildOutlined />, label: 'Figma / Draw.io', href: 'https://www.figma.com/proto/XthO5a3DNdAhGHSeYIuFYw/MyIOTDesign?node-id=3-135&scaling=scale-down&content-scaling=fixed' },
 ];
 
 export default function Profile() {

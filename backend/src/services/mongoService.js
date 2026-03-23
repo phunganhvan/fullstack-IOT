@@ -4,13 +4,11 @@ let mongoConnected = false;
 
 async function connectMongo() {
   const mongoUri = process.env.MONGODB_URI;
-
   if (!mongoUri) {
     console.warn('MongoDB is not configured (MONGODB_URI is empty). Running with in-memory store only.');
     mongoConnected = false;
     return;
   }
-
   try {
     await mongoose.connect(mongoUri, {
       dbName: process.env.MONGODB_DB_NAME || undefined,
@@ -32,7 +30,7 @@ async function connectMongo() {
       console.warn('MongoDB disconnected');
       mongoConnected = false;
     });
-
+    
     mongoose.connection.on('connected', () => {
       mongoConnected = true;
     });

@@ -1,28 +1,41 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import { Button, Spin, Switch, notification } from 'antd';
+import { Button, Spin, Switch, notification, Modal, Input, Select, InputNumber } from 'antd';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from 'recharts';
 import usePageClock from '../hooks/usePageClock';
-import { getDashboard, controlDevice } from '../services/api';
 import {
-  BulbOutlined, AimOutlined, SnippetsOutlined,
+  getDashboard,
+  controlDevice,
+  addSensor,
+  addDevice,
+  // deleteSensor as deleteSensorApi,
+  // deleteDevice as deleteDeviceApi,
+} from '../services/api';
+import {
+  BulbOutlined,
   CheckCircleFilled, CloseCircleFilled,
   ReloadOutlined,
+  PlusOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import './Dashboard.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFan } from '@fortawesome/free-solid-svg-icons';
+import { faTemperatureArrowUp } from '@fortawesome/free-solid-svg-icons'
 
 const POLL_INTERVAL = 2000;
 const DEVICE_MIN_LOADING_MS = 3000;
 const TRANSITION_TICK_MS = 120;
 const NOTIFICATION_TOP = 20;
 const NOTIFICATION_MAX_COUNT = 4;
+const SENSOR_FALLBACK_COLORS = ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ec4899', '#14b8a6'];
 // symbols: bulb, fan, ac
 const DASHBOARD_ICON_MAP = {
   bulb: <BulbOutlined />,
-  fan: <AimOutlined />,
-  ac: <SnippetsOutlined />,
+  fan: <FontAwesomeIcon icon={faFan} />,
+  ac: <FontAwesomeIcon icon={faTemperatureArrowUp} />,
 };
 
 function normalizeDeviceStatus(status) {
@@ -56,6 +69,75 @@ function showDeviceNotification(notificationApi, deviceLabelMap, deviceName, req
       ? `Device is now ${targetText}.`
       : `Device did not reach ${targetText}. Please try again.`,
   });
+}
+
+function showSimpleNotification(notificationApi, type, message, description) {
+  notificationApi.open({
+    message,
+    description,
+    placement: 'topRight',
+    duration: type === 'success' ? 3.2 : 4.2,
+    className: `device-toast ${type === 'success' ? 'device-toast--success' : 'device-toast--error'}`,
+    icon: type === 'success'
+      ? <CheckCircleFilled className="device-toast-icon device-toast-icon--success" />
+      : <CloseCircleFilled className="device-toast-icon device-toast-icon--error" />,
+  });
+}
+
+function pickFallbackColor(index = 0) {
+  return SENSOR_FALLBACK_COLORS[index % SENSOR_FALLBACK_COLORS.length];
+}
+
+function getSensorIconByLabel(label = '', key = '') {
+  const text = `${label} ${key}`.toLowerCase();
+  if (text.includes('temp')) return '🌡';
+  if (text.includes('humid')) return '💧';
+  if (text.includes('light') || text.includes('lux')) return '☀️';
+  return '📈';
+}
+
+function buildDefaultSensorCards(data) {
+  const fallback = data?.sensors || {
+    temperature: { value: '--', trend: '', status: 'Normal' },
+    humidity: { value: '--', trend: '', status: 'Normal' },
+    lightIntensity: { value: '--', trend: '', status: 'Normal' },
+  };
+
+  return [
+    {
+      key: 'temperature',
+      label: 'Temperature',
+      unit: '°C',
+      value: fallback.temperature.value,
+      trend: fallback.temperature.trend,
+      status: fallback.temperature.status,
+      chartColor: '#ef4444',
+      icon: '🌡',
+      isSimulated: false,
+    },
+    {
+      key: 'humidity',
+      label: 'Humidity',
+      unit: '%',
+      value: fallback.humidity.value,
+      trend: fallback.humidity.trend,
+      status: fallback.humidity.status,
+      chartColor: '#3b82f6',
+      icon: '💧',
+      isSimulated: false,
+    },
+    {
+      key: 'light',
+      label: 'Light Intensity',
+      unit: 'Lux',
+      value: fallback.lightIntensity.value,
+      trend: fallback.lightIntensity.trend,
+      status: fallback.lightIntensity.status,
+      chartColor: '#f59e0b',
+      icon: '☀️',
+      isSimulated: false,
+    },
+  ];
 }
 
 function buildDeviceUiState(deviceType, serverStatus, transition, now) {
@@ -133,20 +215,50 @@ function LiveClock() {
 }
 
 // Sensor card
-function SensorCard({ icon, label, value, unit, trend, trendColor, barColor, status }) {
+function SensorCard({
+  icon,
+  label,
+  value,
+  unit,
+  trend,
+  trendColor,
+  barColor,
+  status,
+  isSimulated,
+  canDelete,
+  deleting,
+  onDelete,
+}) {
   const numericValue = Number(value);
   const progressWidth = Number.isFinite(numericValue) ? Math.max(0, Math.min(100, numericValue)) : 0;
+  const statusText = String(status || 'Normal');
 
   return (
     <div className="sensor-card">
+      {canDelete && (
+        <Button
+          type="text"
+          danger
+          size="small"
+          icon={<DeleteOutlined />}
+          className="sensor-delete-btn"
+          loading={deleting}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete?.();
+          }}
+        />
+      )}
       {trend && (
         <span className="sensor-trend" style={{ color: trendColor }}>{trend}</span>
       )}
       <div className="sensor-icon">{icon}</div>
       <div className="sensor-label">{label}</div>
+      {isSimulated && <div className="sensor-chip">Simulated</div>}
       <div className="sensor-value">
         {value}<sup className="sensor-unit">{unit}</sup>
       </div>
+      <div className="sensor-status-text">{statusText}</div>
       <div className="sensor-bar">
         <div className="sensor-bar-fill" style={{ background: barColor, width: `${progressWidth}%` }} />
       </div>
@@ -155,7 +267,17 @@ function SensorCard({ icon, label, value, unit, trend, trendColor, barColor, sta
 }
 
 // Device toggle card with minimum 5s loading and device-specific animation states.
-function DeviceCard({ icon, name, deviceType, uiState, onChange }) {
+function DeviceCard({
+  icon,
+  name,
+  deviceType,
+  uiState,
+  onChange,
+  isSimulated,
+  canDelete,
+  deleting,
+  onDelete,
+}) {
   const cardClassName = [
     'device-card',
     `device-card--${deviceType}`,
@@ -177,16 +299,34 @@ function DeviceCard({ icon, name, deviceType, uiState, onChange }) {
         <div className={`device-status ${uiState.statusClass}`}>
           {uiState.statusText}
         </div>
+        {isSimulated && <div className="device-note">Simulated device</div>}
       </div>
-      <Switch
-        checked={uiState.switchChecked}
-        onChange={onChange}
-        loading={uiState.isLoading}
-        disabled={uiState.isLoading}
-        style={{ background: uiState.switchChecked ? '#6366f1' : undefined }}
-        className="device-switch"
-        size="small"
-      />
+      <div className="device-controls">
+        {canDelete && (
+          <Button
+            type="text"
+            danger
+            size="small"
+            icon={<DeleteOutlined />}
+            className="device-delete-btn"
+            loading={deleting}
+            disabled={uiState.isLoading || deleting}
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete?.();
+            }}
+          />
+        )}
+        <Switch
+          checked={uiState.switchChecked}
+          onChange={onChange}
+          loading={uiState.isLoading}
+          disabled={uiState.isLoading}
+          style={{ background: uiState.switchChecked ? '#6366f1' : undefined }}
+          className="device-switch"
+          size="small"
+        />
+      </div>
     </div>
   );
 }
@@ -194,11 +334,29 @@ function DeviceCard({ icon, name, deviceType, uiState, onChange }) {
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [deviceTransitions, setDeviceTransitions] = useState({});
-  // hieu ung thiet bi
   const [transitionNow, setTransitionNow] = useState(Date.now());
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [initialLoadError, setInitialLoadError] = useState('');
   const [notificationApi, notificationContextHolder] = notification.useNotification();
+  const [addSensorOpen, setAddSensorOpen] = useState(false);
+  const [addDeviceOpen, setAddDeviceOpen] = useState(false);
+  const [sensorSubmitting, setSensorSubmitting] = useState(false);
+  const [deviceSubmitting, setDeviceSubmitting] = useState(false);
+  // const [deletingSensorMap, setDeletingSensorMap] = useState({});
+  // const [deletingDeviceMap, setDeletingDeviceMap] = useState({});
+
+  const [sensorDraft, setSensorDraft] = useState({
+    name: '',
+    unit: 'unit',
+    randomMin: 0,
+    randomMax: 100,
+    chartColor: '#8b5cf6',
+  });
+  const [deviceDraft, setDeviceDraft] = useState({
+    name: '',
+    label: '',
+    dashboardType: 'bulb',
+  });
   const initialLoadResolvedRef = useRef(false);
 
   useEffect(() => {
@@ -268,6 +426,33 @@ export default function Dashboard() {
     [deviceList]
   );
 
+  const sensorCards = useMemo(() => {
+    if (Array.isArray(data?.sensorCards) && data.sensorCards.length) {
+      return data.sensorCards.map((item, index) => ({
+        ...item,
+        chartColor: item.chartColor || pickFallbackColor(index),
+        icon: item.icon || getSensorIconByLabel(item.label, item.key),
+      }));
+    }
+    return buildDefaultSensorCards(data);
+  }, [data]);
+
+  const chartSeries = useMemo(() => {
+    if (Array.isArray(data?.chartSeries) && data.chartSeries.length) {
+      return data.chartSeries.map((item, index) => ({
+        ...item,
+        color: item.color || pickFallbackColor(index),
+        yAxisId: item.yAxisId || 'left',
+      }));
+    }
+
+    return [
+      { key: 'temperature', name: 'Temperature', color: '#ef4444', yAxisId: 'left' },
+      { key: 'humidity', name: 'Humidity', color: '#3b82f6', yAxisId: 'left' },
+      { key: 'light', name: 'Light', color: '#f59e0b', yAxisId: 'right', strokeDasharray: '6 3' },
+    ];
+  }, [data]);
+
   useEffect(() => {
     if (!Object.keys(deviceTransitions).length) return;
 
@@ -276,7 +461,7 @@ export default function Dashboard() {
         const serverStatus = normalizeDeviceStatus(data?.devices?.[deviceName]?.status);
         const minLoadingDone = transitionNow - transition.startedAt >= DEVICE_MIN_LOADING_MS;
 
-        if (serverStatus === 'waiting' || !minLoadingDone) {
+        if (serverStatus === 'loading' || !minLoadingDone) {
           return null;
         }
 
@@ -309,7 +494,7 @@ export default function Dashboard() {
     if (deviceTransitions[deviceName]) return;
 
     const normalizedCurrentStatus = normalizeDeviceStatus(currentStatus);
-    if (normalizedCurrentStatus === 'waiting') return;
+    if (normalizedCurrentStatus === 'loading') return;
 
     const action = normalizedCurrentStatus === 'on' ? 'off' : 'on';
 
@@ -340,12 +525,162 @@ export default function Dashboard() {
       console.error('Device control error', e);
     }
   };
+  // const handleAddSensor = async () => {
+  //   const name = String(sensorDraft.name || '').trim();
+  //   const unit = String(sensorDraft.unit || '').trim() || 'unit';
+  //   const randomMin = Number(sensorDraft.randomMin);
+  //   const randomMax = Number(sensorDraft.randomMax);
+  //   const chartColor = String(sensorDraft.chartColor || '').trim();
 
-  const sensors = data?.sensors || {
-    temperature:    { value: '--', trend: '', status: 'Normal' },
-    humidity:       { value: '--', trend: '', status: 'Normal' },
-    lightIntensity: { value: '--', trend: '', status: 'Normal' },
-  };
+  //   if (!name) {
+  //     showSimpleNotification(notificationApi, 'error', 'Missing sensor name', 'Please enter sensor name.');
+  //     return;
+  //   }
+
+  //   if (!Number.isFinite(randomMin) || !Number.isFinite(randomMax) || randomMax <= randomMin) {
+  //     showSimpleNotification(
+  //       notificationApi,
+  //       'error',
+  //       'Invalid range',
+  //       'randomMax must be greater than randomMin.'
+  //     );
+  //     return;
+  //   }
+
+  //   setSensorSubmitting(true);
+  //   try {
+  //     await addSensor({ name, unit, randomMin, randomMax, chartColor });
+  //     setAddSensorOpen(false);
+  //     setSensorDraft({
+  //       name: '',
+  //       unit: 'unit',
+  //       randomMin: 0,
+  //       randomMax: 100,
+  //       chartColor: '#8b5cf6',
+  //     });
+  //     await fetchData();
+  //     showSimpleNotification(notificationApi, 'success', 'Sensor added', `${name} has been added successfully.`);
+  //   } catch (error) {
+  //     showSimpleNotification(
+  //       notificationApi,
+  //       'error',
+  //       'Add sensor failed',
+  //       error?.response?.data?.message || 'Unable to add sensor right now.'
+  //     );
+  //   } finally {
+  //     setSensorSubmitting(false);
+  //   }
+  // };
+  // const handleAddDevice = async () => {
+  //   const name = String(deviceDraft.name || '').trim();
+  //   const label = String(deviceDraft.label || '').trim() || name;
+  //   const dashboardType = String(deviceDraft.dashboardType || 'bulb').toLowerCase();
+
+  //   if (!name) {
+  //     showSimpleNotification(notificationApi, 'error', 'Missing device name', 'Please enter device name.');
+  //     return;
+  //   }
+
+  //   setDeviceSubmitting(true);
+  //   try {
+  //     await addDevice({ name, label, dashboardType });
+  //     setAddDeviceOpen(false);
+  //     setDeviceDraft({ name: '', label: '', dashboardType: 'bulb' });
+  //     await fetchData();
+  //     showSimpleNotification(notificationApi, 'success', 'Device added', `${label} is now available for control.`);
+  //   } catch (error) {
+  //     showSimpleNotification(
+  //       notificationApi,
+  //       'error',
+  //       'Add device failed',
+  //       error?.response?.data?.message || 'Unable to add device right now.'
+  //     );
+  //   } finally {
+  //     setDeviceSubmitting(false);
+  //   }
+  // };
+
+  // const handleDeleteSensor = (sensor) => {
+  //   if (!sensor?.isSimulated || !sensor?.key) {
+  //     return;
+  //   }
+
+  //   const sensorKey = sensor.key;
+  //   const sensorLabel = sensor.label || sensorKey;
+
+  //   // Modal.confirm({
+  //   //   title: `Delete ${sensorLabel}?`,
+  //   //   content: 'This simulated sensor and its collected values will be removed.',
+  //   //   okText: 'Delete',
+  //   //   okType: 'danger',
+  //   //   cancelText: 'Cancel',
+  //   //   async onOk() {
+  //   //     setDeletingSensorMap((current) => ({ ...current, [sensorKey]: true }));
+  //   //     try {
+  //   //       await deleteSensorApi(sensorKey);
+  //   //       await fetchData();
+  //   //       showSimpleNotification(notificationApi, 'success', 'Sensor deleted', `${sensorLabel} was removed successfully.`);
+  //   //     } catch (error) {
+  //   //       showSimpleNotification(
+  //   //         notificationApi,
+  //   //         'error',
+  //   //         'Delete sensor failed',
+  //   //         error?.response?.data?.message || 'Unable to delete this sensor right now.'
+  //   //       );
+  //   //     } finally {
+  //   //       setDeletingSensorMap((current) => {
+  //   //         const next = { ...current };
+  //   //         delete next[sensorKey];
+  //   //         return next;
+  //   //       });
+  //   //     }
+  //   //   },
+  //   // });
+  // };
+
+  // const handleDeleteDevice = (device) => {
+  //   if (!device?.isSimulated || !device?.id) {
+  //     return;
+  //   }
+
+  //   const deviceId = device.id;
+  //   const deviceLabel = device.label || deviceId;
+
+  //   Modal.confirm({
+  //     title: `Delete ${deviceLabel}?`,
+  //     content: 'This simulated device will be removed from the dashboard.',
+  //     okText: 'Delete',
+  //     okType: 'danger',
+  //     cancelText: 'Cancel',
+  //     async onOk() {
+  //       setDeletingDeviceMap((current) => ({ ...current, [deviceId]: true }));
+  //       try {
+  //         await deleteDeviceApi(deviceId);
+  //         setDeviceTransitions((current) => {
+  //           const next = { ...current };
+  //           delete next[deviceId];
+  //           return next;
+  //         });
+  //         await fetchData();
+  //         showSimpleNotification(notificationApi, 'success', 'Device deleted', `${deviceLabel} was removed successfully.`);
+  //       } catch (error) {
+  //         showSimpleNotification(
+  //           notificationApi,
+  //           'error',
+  //           'Delete device failed',
+  //           error?.response?.data?.message || 'Unable to delete this device right now.'
+  //         );
+  //       } finally {
+  //         setDeletingDeviceMap((current) => {
+  //           const next = { ...current };
+  //           delete next[deviceId];
+  //           return next;
+  //         });
+  //       }
+  //     },
+  //   });
+  // };
+
   const chartData = data?.chartData || [];
 
   const showInitialPanel = isInitialLoading || (!!initialLoadError && !data);
@@ -359,7 +694,27 @@ export default function Dashboard() {
           <h1 className="dash-title">Dashboard Overview</h1>
           <p className="dash-subtitle">Real-time monitoring and control system</p>
         </div>
-        <LiveClock />
+        <div className="dash-header-right">
+          {/* <div className="dash-header-actions">
+            <Button
+              type="default"
+              icon={<PlusOutlined />}
+              className="dashboard-action-btn"
+              onClick={() => setAddSensorOpen(true)}
+            >
+              Add Sensor
+            </Button>
+            <Button
+              type="default"
+              icon={<PlusOutlined />}
+              className="dashboard-action-btn"
+              onClick={() => setAddDeviceOpen(true)}
+            >
+              Add Device
+            </Button>
+          </div> */}
+          <LiveClock />
+        </div>
       </div>
 
       {showInitialPanel ? (
@@ -392,35 +747,23 @@ export default function Dashboard() {
 
           {/* Sensor cards row */}
           <div className="sensor-row">
-            <SensorCard
-              icon={<span className="s-icon temp-icon">🌡</span>}
-              label="Temperature"
-              value={sensors.temperature.value}
-              unit="°C"
-              trend={sensors.temperature.trend}
-              trendColor="#f87171"
-              barColor="#ef4444"
-            />
-            <SensorCard
-              icon={<span className="s-icon humid-icon">💧</span>}
-              label="Humidity"
-              value={sensors.humidity.value}
-              unit="%"
-              trend={sensors.humidity.trend}
-              trendColor="#60a5fa"
-              barColor="#3b82f6"
-            />
-            <SensorCard
-              icon={<span className="s-icon light-icon">☀️</span>}
-              label="Light Intensity"
-              value={sensors.lightIntensity.value}
-              unit="Lux"
-              trend={sensors.lightIntensity.trend}
-              trendColor="#fbbf24"
-              barColor="#f59e0b"
-              status={sensors.lightIntensity.status}
-              statusTag
-            />
+            {sensorCards.map((sensor, index) => (
+              <SensorCard
+                key={sensor.key || `${sensor.label}-${index}`}
+                icon={<span className="s-icon">{sensor.icon || '📈'}</span>}
+                label={sensor.label}
+                value={sensor.value}
+                unit={sensor.unit}
+                trend={sensor.trend}
+                trendColor={sensor.chartColor || pickFallbackColor(index)}
+                barColor={sensor.chartColor || pickFallbackColor(index)}
+                status={sensor.status}
+                isSimulated={sensor.isSimulated}
+                canDelete={sensor.isSimulated}
+              // deleting={Boolean(deletingSensorMap[sensor.key])}
+              // onDelete={() => handleDeleteSensor(sensor)}
+              />
+            ))}
           </div>
 
           {/* Chart */}
@@ -438,9 +781,20 @@ export default function Dashboard() {
                   labelStyle={{ color: '#9ca3af' }}
                 />
                 <Legend wrapperStyle={{ color: '#9ca3af', paddingTop: 4, fontSize: 12 }} />
-                <Line yAxisId="left"  type="monotone" dataKey="temperature" stroke="#ef4444" dot={false} strokeWidth={2} name="Temp" />
-                <Line yAxisId="left"  type="monotone" dataKey="humidity"    stroke="#3b82f6" dot={false} strokeWidth={2} name="Humidity" />
-                <Line yAxisId="right" type="monotone" dataKey="light"       stroke="#f59e0b" dot={false} strokeWidth={2} strokeDasharray="6 3" name="Light" />
+                {chartSeries.map((series, index) => (
+                  <Line
+                    key={series.key || `${series.name}-${index}`}
+                    yAxisId={series.yAxisId || 'left'}
+                    type="monotone"
+                    dataKey={series.key}
+                    stroke={series.color || pickFallbackColor(index)}
+                    dot={false}
+                    strokeWidth={2}
+                    strokeDasharray={series.strokeDasharray || undefined}
+                    name={series.name}
+                    connectNulls
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -467,12 +821,116 @@ export default function Dashboard() {
                     name={device.label}
                     deviceType={deviceType}
                     uiState={uiState}
+                    isSimulated={device.isSimulated}
+                    canDelete={device.isSimulated}
+                    // deleting={Boolean(deletingDeviceMap[device.id])}
+                    // onDelete={() => handleDeleteDevice(device)}
                     onChange={() => handleToggle(device.id, deviceStatus)}
                   />
                 );
               })}
             </div>
           </div>
+
+          {/* <Modal
+            title="Add Simulated Sensor"
+            open={addSensorOpen}
+            onCancel={() => setAddSensorOpen(false)}
+            onOk={handleAddSensor}
+            confirmLoading={sensorSubmitting}
+            okText="Add"
+            cancelText="Cancel"
+          >
+            <div className="dashboard-form-field">
+              <span>Sensor Name</span>
+              <Input
+                placeholder="e.g. Soil Moisture"
+                value={sensorDraft.name}
+                onChange={(e) => setSensorDraft((cur) => ({ ...cur, name: e.target.value }))}
+              />
+            </div>
+            <div className="dashboard-form-grid">
+              <div className="dashboard-form-field">
+                <span>Unit</span>
+                <Input
+                  placeholder="e.g. %"
+                  value={sensorDraft.unit}
+                  onChange={(e) => setSensorDraft((cur) => ({ ...cur, unit: e.target.value }))}
+                />
+              </div>
+              <div className="dashboard-form-field">
+                <span>Color</span>
+                <div className="dashboard-color-field">
+                  <input
+                    type="color"
+                    value={sensorDraft.chartColor}
+                    onChange={(e) => setSensorDraft((cur) => ({ ...cur, chartColor: e.target.value }))}
+                  />
+                  <Input
+                    value={sensorDraft.chartColor}
+                    onChange={(e) => setSensorDraft((cur) => ({ ...cur, chartColor: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="dashboard-form-grid">
+              <div className="dashboard-form-field">
+                <span>Random Min</span>
+                <InputNumber
+                  value={sensorDraft.randomMin}
+                  onChange={(value) => setSensorDraft((cur) => ({ ...cur, randomMin: Number(value ?? 0) }))}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div className="dashboard-form-field">
+                <span>Random Max</span>
+                <InputNumber
+                  value={sensorDraft.randomMax}
+                  onChange={(value) => setSensorDraft((cur) => ({ ...cur, randomMax: Number(value ?? 100) }))}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+          </Modal> */}
+
+          {/* <Modal
+            title="Add Simulated Device"
+            open={addDeviceOpen}
+            onCancel={() => setAddDeviceOpen(false)}
+            onOk={handleAddDevice}
+            confirmLoading={deviceSubmitting}
+            okText="Add"
+            cancelText="Cancel"
+          >
+            <div className="dashboard-form-field">
+              <span>Device Name</span>
+              <Input
+                placeholder="e.g. led3"
+                value={deviceDraft.name}
+                onChange={(e) => setDeviceDraft((cur) => ({ ...cur, name: e.target.value }))}
+              />
+            </div>
+            <div className="dashboard-form-field">
+              <span>Label</span>
+              <Input
+                placeholder="e.g. LED 3"
+                value={deviceDraft.label}
+                onChange={(e) => setDeviceDraft((cur) => ({ ...cur, label: e.target.value }))}
+              />
+            </div>
+            <div className="dashboard-form-field">
+              <span>Type</span>
+              <Select
+                value={deviceDraft.dashboardType}
+                onChange={(value) => setDeviceDraft((cur) => ({ ...cur, dashboardType: value }))}
+                options={[
+                  { value: 'bulb', label: 'Bulb' },
+                  { value: 'fan', label: 'Fan' },
+                  { value: 'ac', label: 'Air Conditioner' },
+                ]}
+              />
+            </div>
+          </Modal> */}
         </>
       )}
     </div>

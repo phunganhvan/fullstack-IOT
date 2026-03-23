@@ -11,14 +11,14 @@ import './PageTable.scss';
 const { Option } = Select;
 
 const SENSOR_ICONS = {
-  'Temperature':  '🌡',
-  'Humidity':     '💧',
+  'Temperature': '🌡',
+  'Humidity': '💧',
   'Light Sensor': '☀️',
 };
 
 const STATUS_COLOR = {
-  High:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
-  Low:    { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+  High: { color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
+  Low: { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
   Normal: { color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
 };
 
@@ -48,23 +48,23 @@ function isSearchValid(dataType, searchText) {
 export default function DataSensor() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [tableData, setTableData]   = useState([]);
+  const [tableData, setTableData] = useState([]);
   // config table antd
-  const [total, setTotal]           = useState(0);
-  const [loading, setLoading]       = useState(false);
-  const [page, setPage]             = useState(1);
-  const [limit, setLimit]           = useState(10);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   //end config table antd
-  
+
   // param query
-  const [search, setSearch]         = useState(() => searchParams.get('search') || '');
-  const [dataType, setDataType]     = useState(() => normalizeDataType(searchParams.get('dataType')));
-  const [type, setType]             = useState(() => normalizeSensorType(searchParams.get('type')));
-  const [sort, setSort]             = useState(() => {
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [dataType, setDataType] = useState(() => normalizeDataType(searchParams.get('dataType')));
+  const [type, setType] = useState(() => normalizeSensorType(searchParams.get('type')));
+  const [sort, setSort] = useState(() => {
     const qSort = searchParams.get('sort');
     return ['timestamp', 'value'].includes(qSort) ? qSort : 'timestamp';
   });
-  const [order, setOrder]           = useState(() => {
+  const [order, setOrder] = useState(() => {
     const qOrder = searchParams.get('order');
     return ['asc', 'desc'].includes(qOrder) ? qOrder : 'desc';
   });

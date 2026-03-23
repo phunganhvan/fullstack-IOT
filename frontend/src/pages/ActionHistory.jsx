@@ -38,22 +38,22 @@ function isSearchValid(dataType, searchText) {
 const STATUS_COLOR = {
   LOADING: { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', border: '#f59e0b' },
   SUCCESS: { color: '#10b981', bg: 'rgba(16,185,129,0.15)', border: '#10b981' },
-  ERROR:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)', border: '#ef4444' },
+  ERROR: { color: '#ef4444', bg: 'rgba(239,68,68,0.15)', border: '#ef4444' },
 };
 
 export default function ActionHistory() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [tableData, setTableData]   = useState([]);
+  const [tableData, setTableData] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [loading, setLoading]       = useState(false);
-  const [page, setPage]             = useState(1);
-  const [limit, setLimit]           = useState(10);
-  const [search, setSearch]         = useState(() => searchParams.get('search') || '');
-  const [dataType, setDataType]     = useState(() => normalizeDataType(searchParams.get('dataType')));
-  const [device, setDevice]         = useState(() => normalizeDevice(searchParams.get('device')));
-  const [order, setOrder]           = useState(() => {
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [dataType, setDataType] = useState(() => normalizeDataType(searchParams.get('dataType')));
+  const [device, setDevice] = useState(() => normalizeDevice(searchParams.get('device')));
+  const [order, setOrder] = useState(() => {
     const qOrder = searchParams.get('order');
     return ['asc', 'desc'].includes(qOrder) ? qOrder : 'desc';
   });
