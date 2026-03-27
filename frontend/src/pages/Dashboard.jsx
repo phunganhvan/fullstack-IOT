@@ -96,6 +96,44 @@ function getSensorIconByLabel(label = '', key = '') {
   return '📈';
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getSensorBarConfig(sensorKey = '', label = '', value = 0, fallbackColor = '#6366f1') {
+  const text = `${sensorKey} ${label}`.toLowerCase();
+  const numericValue = Number.isFinite(Number(value)) ? Number(value) : 0;
+
+  let maxValue = 100;
+  let hue = 240;
+
+  if (text.includes('temp')) {
+    maxValue = 50;
+    hue = 8;
+  } else if (text.includes('humid')) {
+    maxValue = 100;
+    hue = 208;
+  } else if (text.includes('light') || text.includes('lux')) {
+    maxValue = 1000;
+    hue = 44;
+  }
+
+  const ratio = clamp(numericValue / maxValue, 0, 1);
+  const width = clamp(Math.round(ratio * 100), 4, 100);
+
+  const startLightness = clamp(82 - ratio * 22, 52, 82);
+  const midLightness = clamp(68 - ratio * 20, 38, 70);
+  const endLightness = clamp(54 - ratio * 18, 28, 58);
+
+  const gradient = `linear-gradient(90deg, hsl(${hue} 92% ${startLightness}%), hsl(${hue} 94% ${midLightness}%), hsl(${hue} 96% ${endLightness}%))`;
+
+  return {
+    width,
+    background: gradient,
+    shadowColor: fallbackColor,
+  };
+}
+
 function buildDefaultSensorCards(data) {
   const fallback = data?.sensors || {
     temperature: { value: '--', trend: '', status: 'Normal' },
@@ -216,6 +254,7 @@ function LiveClock() {
 
 // Sensor card
 function SensorCard({
+  sensorKey,
   icon,
   label,
   value,
@@ -229,9 +268,8 @@ function SensorCard({
   deleting,
   onDelete,
 }) {
-  const numericValue = Number(value);
-  const progressWidth = Number.isFinite(numericValue) ? Math.max(0, Math.min(100, numericValue)) : 0;
   const statusText = String(status || 'Normal');
+  const barConfig = getSensorBarConfig(sensorKey, label, value, barColor);
 
   return (
     <div className="sensor-card">
@@ -260,7 +298,14 @@ function SensorCard({
       </div>
       <div className="sensor-status-text">{statusText}</div>
       <div className="sensor-bar">
-        <div className="sensor-bar-fill" style={{ background: barColor, width: `${progressWidth}%` }} />
+        <div
+          className="sensor-bar-fill"
+          style={{
+            width: `${barConfig.width}%`,
+            background: barConfig.background,
+            boxShadow: `0 0 10px ${barConfig.shadowColor}55`,
+          }}
+        />
       </div>
     </div>
   );
@@ -280,6 +325,7 @@ function DeviceCard({
 }) {
   const cardClassName = [
     'device-card',
+    'device-card--interactive',
     `device-card--${deviceType}`,
     uiState.highlight ? 'device-card--highlighted' : '',
     uiState.isLoading ? 'device-card--busy' : '',
@@ -291,8 +337,27 @@ function DeviceCard({
     `device-visual-state--${uiState.visualState}`,
   ].join(' ');
 
+  const handleCardToggle = () => {
+    if (uiState.isLoading) return;
+    onChange?.();
+  };
+
   return (
-    <div className={cardClassName}>
+    <div
+      className={cardClassName}
+      role="button"
+      tabIndex={uiState.isLoading ? -1 : 0}
+      aria-pressed={uiState.switchChecked}
+      aria-disabled={uiState.isLoading}
+      onClick={uiState.isLoading ? undefined : handleCardToggle}
+      onKeyDown={(event) => {
+        if (uiState.isLoading) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleCardToggle();
+        }
+      }}
+    >
       <div className={visualClassName}>{icon}</div>
       <div className="device-info">
         <div className="device-name">{name}</div>
@@ -320,6 +385,7 @@ function DeviceCard({
         <Switch
           checked={uiState.switchChecked}
           onChange={onChange}
+          onClick={(_, event) => event?.stopPropagation?.()}
           loading={uiState.isLoading}
           disabled={uiState.isLoading}
           style={{ background: uiState.switchChecked ? '#6366f1' : undefined }}
@@ -750,6 +816,7 @@ export default function Dashboard() {
             {sensorCards.map((sensor, index) => (
               <SensorCard
                 key={sensor.key || `${sensor.label}-${index}`}
+                sensorKey={sensor.key}
                 icon={<span className="s-icon">{sensor.icon || '📈'}</span>}
                 label={sensor.label}
                 value={sensor.value}

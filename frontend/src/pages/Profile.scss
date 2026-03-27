@@ -3,8 +3,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #0f1123;
-  color: #fff;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 .profile-card-wrap {
@@ -16,9 +16,9 @@
 }
 
 .profile-card {
-  background: #141629;
+  background: var(--surface-1);
   border-radius: 16px;
-  border: 1px solid #1e2140;
+  border: 1px solid var(--border-1);
   padding: 32px 36px;
   display: flex;
   gap: 36px;
@@ -36,7 +36,7 @@
 }
 
 .profile-avatar {
-  background: #2d3050 !important;
+  background: var(--surface-3) !important;
   font-size: 48px !important;
   width: 110px !important;
   height: 110px !important;
@@ -44,8 +44,8 @@
 }
 
 .profile-role-badge {
-  background: #2d3050;
-  color: #a5b4fc;
+  background: var(--surface-3);
+  color: var(--primary-500);
   font-size: 12px;
   font-weight: 600;
   padding: 4px 14px;
@@ -63,14 +63,14 @@
 .pf-label {
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
   letter-spacing: 0.06em;
   margin-bottom: 4px;
 }
 
 .pf-input {
-  background: #1a1d35;
-  border: 1px solid #2d3050;
+  background: var(--surface-2);
+  border: 1px solid var(--border-1);
   border-radius: 8px;
   padding: 10px 14px;
   display: flex;
@@ -78,8 +78,15 @@
   gap: 10px;
 }
 
-.pf-icon { color: #6366f1; font-size: 15px; }
-.pf-value { color: #d1d5db; font-size: 14px; }
+.pf-icon {
+  color: var(--primary-500);
+  font-size: 15px;
+}
+
+.pf-value {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
 
 /* Links grid */
 .pf-links-grid {
@@ -89,24 +96,29 @@
 }
 
 .pf-link-card {
-  background: #1a1d35;
-  border: 1px solid #2d3050;
+  background: var(--surface-2);
+  border: 1px solid var(--border-1);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #d1d5db;
+  color: var(--text-secondary);
   font-size: 13px;
   text-decoration: none;
   transition: background 0.2s, border-color 0.2s;
 }
+
 .pf-link-card:hover {
-  background: #2d3050;
-  border-color: #6366f1;
-  color: #fff;
+  background: var(--surface-3);
+  border-color: var(--primary-500);
+  color: var(--text-primary);
 }
-.pf-link-icon { color: #6366f1; font-size: 16px; }
+
+.pf-link-icon {
+  color: var(--primary-500);
+  font-size: 16px;
+}
 
 /* reuse page-header styles */
 .page-header {
@@ -116,6 +128,24 @@
   flex-shrink: 0;
   padding: 16px 20px 0;
 }
-.page-title   { font-size: 22px; font-weight: 700; color: #fff; margin: 0; }
-.page-subtitle{ font-size: 12px; color: #6b7280; margin: 2px 0 0; }
-.page-time    { text-align: right; font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.page-time {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}

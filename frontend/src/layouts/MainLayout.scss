@@ -1,8 +1,9 @@
 .sidebar {
-  background: #141629 !important;
-  border-right: 1px solid #1e2140;
+  background: var(--surface-1) !important;
+  border-right: 1px solid var(--border-1);
   display: flex;
   flex-direction: column;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .sidebar-header {
@@ -10,24 +11,40 @@
   align-items: center;
   gap: 10px;
   padding: 18px 16px;
-  border-bottom: 1px solid #1e2140;
+  border-bottom: 1px solid var(--border-1);
 }
 
 .brand-avatar {
-  background: #3b3f6b;
+  background: var(--surface-3);
   flex-shrink: 0;
 }
 
 .brand-title {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 14px;
   line-height: 1.2;
 }
 
 .brand-subtitle {
-  color: #8b8fa8;
+  color: var(--text-muted);
   font-size: 11px;
+}
+
+.theme-toggle-btn {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-1) !important;
+  background: var(--surface-2) !important;
+  color: var(--text-secondary) !important;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--text-primary) !important;
+  border-color: var(--primary-500) !important;
+  background: var(--surface-3) !important;
 }
 
 .sidebar-menu {
@@ -38,20 +55,33 @@
 }
 
 .sidebar-menu .ant-menu-item {
-  color: #8b8fa8 !important;
+  color: var(--text-muted) !important;
   border-radius: 8px !important;
   margin: 2px 8px !important;
   width: calc(100% - 16px) !important;
+  border: none !important;
+  background: transparent !important;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .sidebar-menu .ant-menu-item:hover {
-  color: #fff !important;
-  background: #1e2140 !important;
+  color: var(--text-primary) !important;
+  background: var(--menu-hover-bg) !important;
 }
 
 .sidebar-menu .ant-menu-item-selected {
-  background: #3b3f8c !important;
-  color: #fff !important;
+  border-color: var(--primary-500) !important;
+  background: linear-gradient(90deg,
+      var(--menu-active-grad-start) 0%,
+      var(--menu-active-grad-mid) 55%,
+      var(--menu-active-grad-end) 100%) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 8px 18px var(--shadow-soft);
+}
+
+.sidebar-menu .ant-menu-item .ant-menu-title-content,
+.sidebar-menu .ant-menu-item .ant-menu-item-icon {
+  color: inherit !important;
 }
 
 .main-content {

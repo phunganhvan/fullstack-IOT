@@ -6,8 +6,8 @@
   flex-direction: column;
   padding: 16px 20px 10px;
   gap: 10px;
-  background: #0f1123;
-  color: #fff;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 /* ── Header ──────────────────────────── */
@@ -30,9 +30,9 @@
 }
 
 .dashboard-action-btn {
-  background: #141629 !important;
-  border: 1px solid #313a68 !important;
-  color: #dbe5ff !important;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--border-1) !important;
+  color: var(--text-secondary) !important;
   border-radius: 10px !important;
   font-weight: 600;
 }
@@ -45,13 +45,13 @@
 .dash-title {
   font-size: 22px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .dash-subtitle {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 2px 0 0;
 }
 
@@ -62,12 +62,12 @@
 .clock-time {
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .clock-date {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .dashboard-loading-shell {
@@ -132,11 +132,11 @@
 
 .sensor-card {
   flex: 1;
-  background: #141629;
+  background: var(--surface-1);
   border-radius: 12px;
   padding: 14px 16px;
   position: relative;
-  border: 1px solid #1e2140;
+  border: 1px solid var(--border-1);
 }
 
 .sensor-delete-btn {
@@ -173,7 +173,7 @@
 
 .sensor-label {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 2px;
 }
 
@@ -195,27 +195,27 @@
 .sensor-value {
   font-size: 26px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   line-height: 1.1;
 }
 
 .sensor-unit {
   font-size: 13px;
   font-weight: 400;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .sensor-status-text {
   margin-top: 4px;
   font-size: 11px;
-  color: #9fb0d1;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .sensor-bar {
   margin-top: 8px;
-  height: 3px;
-  background: #1e2140;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(30, 33, 64, 0.95), rgba(22, 25, 48, 0.95));
   border-radius: 2px;
   overflow: hidden;
 }
@@ -223,16 +223,16 @@
 .sensor-bar-fill {
   height: 100%;
   border-radius: 2px;
-  transition: width 0.5s;
+  transition: width 0.45s ease, background 0.35s ease, box-shadow 0.35s ease;
 }
 
 /* ── Chart ───────────────────────────── */
 .chart-section {
   flex: 1;
   min-height: 0;
-  background: #141629;
+  background: var(--surface-1);
   border-radius: 12px;
-  border: 1px solid #1e2140;
+  border: 1px solid var(--border-1);
   padding: 12px 16px 8px;
   display: flex;
   flex-direction: column;
@@ -241,7 +241,7 @@
 .chart-title {
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 6px;
   flex-shrink: 0;
 }
@@ -254,7 +254,7 @@
 .device-section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
@@ -267,9 +267,9 @@
 .device-card {
   flex: 1;
   min-width: 220px;
-  background: linear-gradient(180deg, #15172b 0%, #121426 100%);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%);
   border-radius: 12px;
-  border: 1px solid #1e2140;
+  border: 1px solid var(--border-1);
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -277,6 +277,15 @@
   position: relative;
   overflow: hidden;
   transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease, background 0.35s ease;
+}
+
+.device-card--interactive {
+  cursor: pointer;
+}
+
+.device-card--interactive:focus-visible {
+  outline: 2px solid rgba(140, 156, 255, 0.7);
+  outline-offset: 2px;
 }
 
 .device-card::before {
@@ -300,6 +309,12 @@
 .device-card--busy {
   border-color: rgba(245, 158, 11, 0.65);
   box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), 0 16px 32px rgba(245, 158, 11, 0.12);
+  cursor: wait;
+}
+
+.device-card--busy:hover,
+.device-card--busy * {
+  cursor: wait !important;
 }
 
 .device-card--bulb.device-card--highlighted {
@@ -317,8 +332,8 @@
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: #1b1e38;
-  border: 1px solid #262a49;
+  background: var(--surface-3);
+  border: 1px solid var(--border-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,7 +362,7 @@
 .device-name {
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .device-status {
@@ -362,7 +377,7 @@
 }
 
 .device-status--off {
-  color: #7b8399;
+  color: var(--text-muted);
 }
 
 .device-status--busy {
@@ -371,7 +386,7 @@
 
 .device-note {
   font-size: 11px;
-  color: #8f97aa;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -433,6 +448,25 @@
 
 .device-switch {
   flex-shrink: 0;
+}
+
+:root[data-theme='dark'] .device-switch.ant-switch {
+  background-color: #2a3155 !important;
+  border: 1px solid #4a568b !important;
+}
+
+:root[data-theme='dark'] .device-switch.ant-switch .ant-switch-handle::before {
+  background: #eef2ff !important;
+  box-shadow: 0 1px 6px rgba(10, 14, 32, 0.55);
+}
+
+:root[data-theme='dark'] .device-switch.ant-switch.ant-switch-checked {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%) !important;
+  border-color: #36d975 !important;
+}
+
+:root[data-theme='dark'] .device-switch.ant-switch.ant-switch-disabled {
+  opacity: 0.75;
 }
 
 .device-visual-state--loading {

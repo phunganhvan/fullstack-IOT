@@ -314,18 +314,18 @@ function normalizeDataType(dataType) {
 
 function parseTimeResponseRange(searchValue) {
     const trimmed = String(searchValue || '').trim();
-    const match = trimmed.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})(?:\s+(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?$/);
+    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?$/);
 
     if (!match) {
         return {
             ok: false,
-            message: 'Time Response must follow DD/MM/YYYY with optional HH, HH:mm or HH:mm:ss',
+            message: 'Time Response must follow YYYY-MM-DD with optional HH, HH:mm or HH:mm:ss',
         };
     }
 
-    const day = Number(match[1]);
+    const year = Number(match[1]);
     const month = Number(match[2]);
-    const year = Number(match[3]);
+    const day = Number(match[3]);
     const hasHour = match[4] !== undefined;
     const hasMinute = match[5] !== undefined;
     const hasSecond = match[6] !== undefined;
